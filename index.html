@@ -45,13 +45,13 @@
 <body>
 <nav class="navbar px-3">
   <div class="d-flex align-items-center gap-2">
-    <span class="brand fw-bold">📂 TD Panel</span>
-    <small class="muted-small">— Tracking Division —</small>
+    <span class="brand fw-bold">📂 CID•Panel</span>
+    <small class="muted-small">— Criminal Investigations Division —</small>
   </div>
   <div class="d-flex align-items-center gap-2">
     <span id="whoami" class="pill d-none"></span>
     <button id="btnRanks" class="btn btn-outline-light btn-sm d-none" data-bs-toggle="modal" data-bs-target="#ranksModal">Rangi</button>
-    <button id="btnSettings" class="btn btn-outline-light btn-sm d-none" data-bs-toggle="modal" data-bs-target="#settingsModal">Ustawienia</button>
+    <button id="btnSettings" class="btn btn-outline-light btn-sm d-none" data-bs-toggle="modal" data-bs-target="#settingsModal">Zmiana hasła</button>
     <button id="btnAdmin" class="btn btn-outline-light btn-sm d-none" data-bs-toggle="modal" data-bs-target="#agentModal">➕ Dodaj agenta</button>
     <button id="btnLogin" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#authModal">Zaloguj</button>
     <button id="btnLogout" class="btn btn-danger btn-sm d-none">Wyloguj</button>
@@ -74,9 +74,9 @@
       <div class="col-md-2">
         <select id="levelFilter" class="form-select">
           <option value="">— poziom rangi —</option>
-          <option value="8">01</option>
-          <option value="7">02</option>
-          <option value="6">03</option>
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="03">03</option>
           <option value="5">5</option>
           <option value="4">4</option>
           <option value="3">3</option>
@@ -116,15 +116,14 @@
         </ul>
         <div class="tab-content">
           <div class="tab-pane fade show active" id="tabLogin">
-            <div class="mb-2"><label class="form-label">UID</label><input id="loginUid" class="form-control" placeholder="np. TD-001"></div>
+            <div class="mb-2"><label class="form-label">UID</label><input id="loginUid" class="form-control" placeholder="np. 75202"></div>
             <div class="mb-2"><label class="form-label">Hasło</label><input id="loginPass" type="password" class="form-control"></div>
-            <div class="form-text">Admin loguje się mailem <code>admin@td.agency</code> (UID pole zostaw puste i wpisz e-mail w polu UID).</div>
           </div>
           <div class="tab-pane fade" id="tabRegister">
             <div class="mb-2"><label class="form-label">UID</label><input id="regUid" class="form-control"></div>
             <div class="mb-2"><label class="form-label">Hasło</label><input id="regPass" type="password" class="form-control"></div>
             <div class="mb-2"><label class="form-label">Powtórz hasło</label><input id="regPass2" type="password" class="form-control"></div>
-            <div class="form-text">Podczas rejestracji tworzymy konto o adresie <code>UID@td.agency</code> (jeśli nie ma dokumentu agenta, utworzymy go automatycznie).</div>
+            <div class="form-text">Podczas rejestracji tworzymy konto o adresie <code>UID@cid.division </code> (jeśli nie ma dokumentu agenta, utworzymy go automatycznie).</div>
           </div>
         </div>
       </div>
@@ -136,14 +135,14 @@
   </div>
 </div>
 
-<!-- Modal: Zmiana hasła (ustawienia) -->
+<!-- Modal: Zmiana hasła (zmiana hasła) -->
 <div class="modal fade" id="settingsModal" tabindex="-1">
   <div class="modal-dialog"><form class="modal-content" id="pwdForm">
     <div class="modal-header"><h5 class="modal-title">Zmiana hasła</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
       <div class="mb-2"><label class="form-label">Nowe hasło</label><input type="password" id="newPwd" class="form-control" required></div>
       <div class="mb-2"><label class="form-label">Powtórz nowe hasło</label><input type="password" id="newPwd2" class="form-control" required></div>
-      <div class="form-text">Dotyczy aktualnie zalogowanego konta (np. admina). Hasło nie jest nigdzie ujawniane w kodzie.</div>
+      <div class="form-text">Dotyczy aktualnie zalogowanego konta . Hasło nie jest nigdzie ujawniane w kodzie.</div>
     </div>
     <div class="modal-footer"><button class="btn btn-primary" type="submit">Zmień</button></div>
   </form></div>
@@ -156,9 +155,9 @@
     <div class="modal-body">
       <p class="form-text mb-2">Wpisz nazwy, które chcesz przypisać do poziomów 1 → 01 (1 = najniżej, 01 = najwyżej).</p>
       <div id="ranksInputs" class="mb-2">
-        <div class="mb-2"><label class="form-label">Poziom 01</label><input data-level="5" class="form-control"></div>
-        <div class="mb-2"><label class="form-label">Poziom 02</label><input data-level="5" class="form-control"></div>
-        <div class="mb-2"><label class="form-label">Poziom 03</label><input data-level="5" class="form-control"></div>
+        <div class="mb-2"><label class="form-label">Poziom 01</label><input data-level="01" class="form-control"></div>
+        <div class="mb-2"><label class="form-label">Poziom 02</label><input data-level="02" class="form-control"></div>
+        <div class="mb-2"><label class="form-label">Poziom 03</label><input data-level="03" class="form-control"></div>
         <div class="mb-2"><label class="form-label">Poziom 5</label><input data-level="5" class="form-control"></div>
         <div class="mb-2"><label class="form-label">Poziom 4</label><input data-level="4" class="form-control"></div>
         <div class="mb-2"><label class="form-label">Poziom 3</label><input data-level="3" class="form-control"></div>
@@ -182,6 +181,9 @@
       <div class="mb-2"><label class="form-label">Ranga (nazwa)</label><input id="fRanga" class="form-control" required></div>
       <div class="mb-2"><label class="form-label">Poziom rangi</label>
         <select id="fRankLevel" class="form-select">
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="03">03</option>
           <option value="5">5</option>
           <option value="4">4</option>
           <option value="3">3</option>
@@ -215,13 +217,13 @@
 
   // ===== TODO: Wklej TU swoją konfigurację Firebase =====
 const firebaseConfig = {
-  apiKey: "AIzaSyCwaURS_vQ-vDTwNnzTPRetKjofDese9L8",
-  authDomain: "baza-danych-td.firebaseapp.com",
-  projectId: "baza-danych-td",
-  storageBucket: "baza-danych-td.firebasestorage.app",
-  messagingSenderId: "1001512748132",
-  appId: "1:1001512748132:web:d8bab00a6b02d9921a4b71",
-  measurementId: "G-TPFQSGQ8Y6"
+  apiKey: "AIzaSyA2y8LrRjna_aALAb2M3EvWXxQ31O1YmxI",
+  authDomain: "cid-panel.firebaseapp.com",
+  projectId: "cid-panel",
+  storageBucket: "cid-panel.firebasestorage.app",
+  messagingSenderId: "1082261416682",
+  appId: "1:1082261416682:web:b3ed74f583119884860593",
+  measurementId: "G-0BB6Z67KKG"
 };
   // =====================================================
 
@@ -257,115 +259,18 @@ const firebaseConfig = {
     await setDoc(doc(db,'settings','ranks'), { levels }, { merge:true });
   }
 
-  // ====== PROFIL AGENTA Z SZKOLENIAMI I BASIC TD ======
-async function openProfile(agent) {
-  const agentDoc = await getDoc(doc(db,'agents',agent.id));
-  const a = agentDoc.exists() ? {id:agent.id,...agentDoc.data()} : agent;
-  const canEdit = isAdmin(); // admin może edytować Basic TD i szkolenia
-
-  // Nagłówek modal
-  document.getElementById("profileTitle").textContent = `${a.imie||''} ${a.nazwisko||''} — Ranga ${a.ranga||''}`;
-
-  // Pobierz globalne szkolenia
-  const trainingsSnap = await getDocs(collection(db,'trainings'));
-  const trainings = trainingsSnap.docs.map(t=>({id:t.id,...t.data()}));
-
-  // Treść modala
-  let bodyHTML = `
-    <div class="mb-3">
-      <span class="badge bg-primary">${isAdmin()?'Administracja':'Podgląd'}</span>
-    </div>
-
-    <div class="card bg-secondary text-light p-3 mb-3">
-      <div class="d-flex justify-content-between align-items-center">
-        <h5>Basic TD</h5>
-        <button class="btn btn-sm btn-outline-light ${canEdit?'':'d-none'}" id="addTDRow">➕ Dodaj</button>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-dark table-hover align-middle">
-          <thead><tr><th>Nazwa</th><th>Data</th><th class="text-center">Zdał</th><th>Akcje</th></tr></thead>
-          <tbody id="tdBody">
-            ${(a.basicTD||[]).map((t,idx)=>`
-              <tr>
-                <td><input class="form-control form-control-sm" data-f="name" data-i="${idx}" value="${t.name||''}"></td>
-                <td><input type="date" class="form-control form-control-sm" data-f="date" data-i="${idx}" value="${t.date||''}"></td>
-                <td class="text-center"><input type="checkbox" class="td-checkbox" data-f="passed" data-i="${idx}" ${t.passed?'checked':''} ${canEdit?'':'disabled'}></td>
-                <td><button class="btn btn-sm btn-danger" data-del="${idx}">🗑️</button></td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-      <div class="text-end">
-        <button class="btn btn-primary ${canEdit?'':'d-none'}" id="saveTD">Zapisz zmiany</button>
-      </div>
-    </div>
-
-    <div class="card bg-secondary text-light p-3">
-      <h5>Szkolenia</h5>
-      <div class="table-responsive">
-        <table class="table table-dark table-hover align-middle">
-          <thead><tr><th>Nazwa szkolenia</th><th class="text-center">Zdał</th></tr></thead>
-          <tbody>
-            ${trainings.map((t)=>{
-              const passed = a.trainings && a.trainings[t.id] ? true:false;
-              return `<tr>
-                <td>${t.name||''}</td>
-                <td class="text-center">
-                  <input type="checkbox" class="td-checkbox" data-tid="${t.id}" ${passed?'checked':''} ${canEdit?'':'disabled'}>
-                </td>
-              </tr>`;
-            }).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-  document.getElementById("profileBody").innerHTML = bodyHTML;
-
-  // Pokaż modal
-  const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("profileModal"));
-  modal.show();
-
-  // Obsługa Basic TD
-  function bindTDInputs(){
-    document.querySelectorAll('#tdBody [data-del]').forEach(btn=>{
-      btn.onclick = ()=>{
-        const i=+btn.dataset.del; a.basicTD.splice(i,1); openProfile(a);
-      };
-    });
-    document.querySelectorAll('#tdBody [data-f]').forEach(el=>{
-      el.oninput = ()=>{
-        const i=+el.dataset.i, f=el.dataset.f;
-        f==='passed' ? a.basicTD[i][f]=el.checked : a.basicTD[i][f]=el.value;
-      };
-    });
+  // ====== Load agents & render ======
+  async function loadAgents(){
+    const qSnap = await getDocs(collection(db,'agents'));
+    const agents = qSnap.docs.map(d => ({id:d.id, ...d.data()}));
+    const rankNames = await loadRankNames();
+    renderAgents(agents, rankNames);
   }
-  bindTDInputs();
 
-  if(canEdit){
-    document.getElementById("addTDRow").onclick = ()=>{
-      a.basicTD = a.basicTD||[];
-      a.basicTD.push({name:'',date:'',passed:false});
-      openProfile(a);
-    };
-    document.getElementById("saveTD").onclick = async ()=>{
-      await updateDoc(doc(db,'agents',a.id), { basicTD:a.basicTD||[] });
-      alert("Zapisano Basic TD.");
-      modal.hide();
-    };
-
-    // Szkolenia
-    document.querySelectorAll('#profileBody [data-tid]').forEach(cb=>{
-      cb.onchange = async ()=>{
-        a.trainings = a.trainings||{};
-        a.trainings[cb.dataset.tid] = cb.checked;
-        await updateDoc(doc(db,'agents',a.id), { trainings:a.trainings });
-        alert("Zapisano szkolenia.");
-      };
-    });
-  }
-}
+  function renderAgents(list, rankNames={}){
+    const q = ($("#search").value||'').toLowerCase();
+    const rf = ($("#rankFilter").value||'').toLowerCase();
+    const lf = ($("#levelFilter").value||'');
 
     // Build ranks list for filter
     const ranks = [...new Set(list.map(a=>a.ranga).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pl'));
@@ -631,19 +536,5 @@ async function openProfile(agent) {
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Modal PROFIL AGENTA -->
-<div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content bg-dark text-light">
-      <div class="modal-header">
-        <h5 class="modal-title" id="profileTitle">Profil agenta</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body" id="profileBody">
-        <!-- tutaj wstawiany jest profil agenta przez JS -->
-      </div>
-    </div>
-  </div>
-</div>
 </body>
 </html>
