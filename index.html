@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TD Panel — Tracking Division</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  :root{
+    --bg:#060812; --panel:#0f1820; --panel-2:#0b1320; --accent:#00bfb8; --accent-2:#3fe1d6; --text:#dff7fb; --muted:#93a7b6;
+  }
+  /* Global dark theme */
+  html,body{height:100%;}
+  body{background:var(--bg); color:var(--text); font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+  .navbar{background:linear-gradient(90deg,#07111a,#0b2130)}
+  .brand{color:var(--accent-2)}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2)); border:none; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.6)}
+  .table{color:var(--text)}
+  .table thead{background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#002b29}
+  .btn-primary{background:var(--accent); border:0}
+  .btn-primary:hover{filter:brightness(.95)}
+  .btn-outline-light{border-color:#223645; color:var(--text)}
+  .badge-role{background:var(--accent); color:#002b29}
+  a{color:var(--accent-2)}
+  .form-text{color:var(--muted)!important}
+  .pill{display:inline-block; padding:.25rem .6rem; border-radius:999px; background:#071826; color:#bfefff; font-size:.8rem}
+
+  /* Inputs: dark background, light text */
+  .form-control, .form-select { background:#071826; color:var(--text); border:1px solid rgba(255,255,255,0.04); }
+  .form-control::placeholder{ color: rgba(223,247,251,0.45); }
+  .modal-content{ background: linear-gradient(180deg,#0c1620,#071022); color:var(--text); border:none }
+  .modal-header .btn-close{ filter:invert(.9); }
+
+  /* Where there is a white/light background — ensure text is black */
+  .light-bg{ background:#fff !important; color:#000 !important; }
+  .light-bg .form-control, .light-bg .form-select { background:#fff !important; color:#000 !important; }
+
+  /* Small utilities */
+  .board-badge{ background:#ffd166; color:#001; padding:.15rem .45rem; border-radius:8px; font-weight:600; }
+  .rank-level{ font-weight:700; font-size:.9rem; }
+  .muted-small{ color:var(--muted); font-size:.85rem }
+  .td-checkbox{ width:18px; height:18px }
+</style>
+</head>
+<body>
+<nav class="navbar px-3">
+  <div class="d-flex align-items-center gap-2">
+    <span class="brand fw-bold">📂 TD Panel</span>
+    <small class="muted-small">— Tracking Division —</small>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <span id="whoami" class="pill d-none"></span>
+    <button id="btnRanks" class="btn btn-outline-light btn-sm d-none" data-bs-toggle="modal" data-bs-target="#ranksModal">Rangi</button>
+    <button id="btnSettings" class="btn btn-outline-light btn-sm d-none" data-bs-toggle="modal" data-bs-target="#settingsModal">Ustawienia</button>
+    <button id="btnAdmin" class="btn btn-outline-light btn-sm d-none" data-bs-toggle="modal" data-bs-target="#agentModal">➕ Dodaj agenta</button>
+    <button id="btnLogin" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#authModal">Zaloguj</button>
+    <button id="btnLogout" class="btn btn-danger btn-sm d-none">Wyloguj</button>
+  </div>
+</nav>
+
+<div class="container my-4">
+  <div id="alerts"></div>
+
+  <div class="card p-3 mb-3">
+    <div class="row g-2">
+      <div class="col-md-3">
+        <input id="search" class="form-control" placeholder="Szukaj (UID/Imię/Nazwisko/Ranga)">
+      </div>
+      <div class="col-md-3">
+        <select id="rankFilter" class="form-select">
+          <option value="">— filtruj po randze —</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select id="levelFilter" class="form-select">
+          <option value="">— poziom rangi —</option>
+          <option value="5">5</option>
+          <option value="4">4</option>
+          <option value="3">3</option>
+          <option value="2">2</option>
+          <option value="1">1</option>
+        </select>
+      </div>
+      <div class="col-md-4 d-flex gap-2 justify-content-md-end">
+        <button id="btnExportJSON" class="btn btn-outline-light btn-sm d-none">Eksport JSON</button>
+        <button id="btnExportCSV" class="btn btn-outline-light btn-sm d-none">Eksport CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card p-3">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead><tr>
+          <th>Zarząd</th><th>UID</th><th>Imię</th><th>Nazwisko</th><th>Ranga</th><th>Poziom</th><th>Basic TD (zdane/łącznie)</th><th>Akcje</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Logowanie/Rejestracja -->
+<div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Wejście do systemu</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist">
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabLogin" type="button">Logowanie</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabRegister" type="button">Rejestracja agenta</button></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="tabLogin">
+            <div class="mb-2"><label class="form-label">UID</label><input id="loginUid" class="form-control" placeholder="np. TD-001"></div>
+            <div class="mb-2"><label class="form-label">Hasło</label><input id="loginPass" type="password" class="form-control"></div>
+            <div class="form-text">Admin loguje się mailem <code>admin@td.agency</code> (UID pole zostaw puste i wpisz e-mail w polu UID).</div>
+          </div>
+          <div class="tab-pane fade" id="tabRegister">
+            <div class="mb-2"><label class="form-label">UID</label><input id="regUid" class="form-control"></div>
+            <div class="mb-2"><label class="form-label">Hasło</label><input id="regPass" type="password" class="form-control"></div>
+            <div class="mb-2"><label class="form-label">Powtórz hasło</label><input id="regPass2" type="password" class="form-control"></div>
+            <div class="form-text">Podczas rejestracji tworzymy konto o adresie <code>UID@td.agency</code> (jeśli nie ma dokumentu agenta, utworzymy go automatycznie).</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="doLogin" class="btn btn-primary">Zaloguj</button>
+        <button id="doRegister" class="btn btn-outline-light">Zarejestruj</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Zmiana hasła (ustawienia) -->
+<div class="modal fade" id="settingsModal" tabindex="-1">
+  <div class="modal-dialog"><form class="modal-content" id="pwdForm">
+    <div class="modal-header"><h5 class="modal-title">Zmiana hasła</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <div class="mb-2"><label class="form-label">Nowe hasło</label><input type="password" id="newPwd" class="form-control" required></div>
+      <div class="mb-2"><label class="form-label">Powtórz nowe hasło</label><input type="password" id="newPwd2" class="form-control" required></div>
+      <div class="form-text">Dotyczy aktualnie zalogowanego konta (np. admina). Hasło nie jest nigdzie ujawniane w kodzie.</div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" type="submit">Zmień</button></div>
+  </form></div>
+</div>
+
+<!-- Modal: Rangi (edytowalne nazwy poziomów) -->
+<div class="modal fade" id="ranksModal" tabindex="-1">
+  <div class="modal-dialog"><form class="modal-content" id="ranksForm">
+    <div class="modal-header"><h5 class="modal-title">Nazwy rang (5 poziomów)</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <p class="form-text mb-2">Wpisz nazwy, które chcesz przypisać do poziomów 1 → 5 (1 = najniżej, 5 = najwyżej).</p>
+      <div id="ranksInputs" class="mb-2">
+        <div class="mb-2"><label class="form-label">Poziom 5</label><input data-level="5" class="form-control"></div>
+        <div class="mb-2"><label class="form-label">Poziom 4</label><input data-level="4" class="form-control"></div>
+        <div class="mb-2"><label class="form-label">Poziom 3</label><input data-level="3" class="form-control"></div>
+        <div class="mb-2"><label class="form-label">Poziom 2</label><input data-level="2" class="form-control"></div>
+        <div class="mb-2"><label class="form-label">Poziom 1</label><input data-level="1" class="form-control"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" type="submit">Zapisz nazwy</button></div>
+  </form></div>
+</div>
+
+<!-- Modal: Dodaj/Edytuj Agenta (ADMIN) -->
+<div class="modal fade" id="agentModal" tabindex="-1">
+  <div class="modal-dialog"><form class="modal-content" id="agentForm">
+    <div class="modal-header"><h5 class="modal-title" id="agentModalTitle">Dodaj agenta</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="agentId">
+      <div class="mb-2"><label class="form-label">UID</label><input id="fUid" class="form-control" required></div>
+      <div class="mb-2"><label class="form-label">Imię</label><input id="fImie" class="form-control" required></div>
+      <div class="mb-2"><label class="form-label">Nazwisko</label><input id="fNazwisko" class="form-control" required></div>
+      <div class="mb-2"><label class="form-label">Ranga (nazwa)</label><input id="fRanga" class="form-control" required></div>
+      <div class="mb-2"><label class="form-label">Poziom rangi</label>
+        <select id="fRankLevel" class="form-select">
+          <option value="5">5</option>
+          <option value="4">4</option>
+          <option value="3">3</option>
+          <option value="2">2</option>
+          <option value="1">1</option>
+        </select>
+      </div>
+      <div class="mb-2 form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="fIsBoard">
+        <label class="form-check-label" for="fIsBoard">Zarząd (pokaż na górze)</label>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" type="submit">Zapisz</button></div>
+  </form></div>
+</div>
+
+<!-- Modal: Profil & Basic TD -->
+<div class="modal fade" id="profileModal" tabindex="-1">
+  <div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="profileTitle">Profil</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body" id="profileBody"></div>
+    <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button></div>
+  </div></div>
+</div>
+
+<!-- Firebase (modular SDK) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, doc, addDoc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // ===== TODO: Wklej TU swoją konfigurację Firebase =====
+const firebaseConfig = {
+  apiKey: "AIzaSyCwaURS_vQ-vDTwNnzTPRetKjofDese9L8",
+  authDomain: "baza-danych-td.firebaseapp.com",
+  projectId: "baza-danych-td",
+  storageBucket: "baza-danych-td.firebasestorage.app",
+  messagingSenderId: "1001512748132",
+  appId: "1:1001512748132:web:d8bab00a6b02d9921a4b71",
+  measurementId: "G-TPFQSGQ8Y6"
+};
+  // =====================================================
+
+  // Init
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // UI helpers
+  const $ = s => document.querySelector(s);
+  const alertBox = (type, msg) => {
+    const el = document.createElement('div');
+    el.className = `alert alert-${type} alert-dismissible fade show`;
+    el.innerHTML = `${msg}<button class="btn-close" data-bs-dismiss="alert"></button>`;
+    $("#alerts").appendChild(el); setTimeout(()=>el.remove(), 6000);
+  };
+  const emailFromUID = (uid) => {
+    if(uid.includes('@')) return uid; // pozwól adminowi wpisać swój mail
+    return `${uid}@td.agency`.toLowerCase();
+  }
+  const isAdmin = () => auth.currentUser?.email === 'admin@td.agency';
+
+  // ===== Helpers for ranks (stored in doc 'settings/ranks') =====
+  async function loadRankNames(){
+    const docRef = doc(db,'settings','ranks');
+    try{
+      const snap = await getDoc(docRef);
+      const data = snap.exists() ? snap.data().levels || {} : {};
+      return data; // object with keys '1'..'5'
+    }catch(e){return {};}
+  }
+  async function saveRankNames(levels){
+    await setDoc(doc(db,'settings','ranks'), { levels }, { merge:true });
+  }
+
+  // ====== Load agents & render ======
+  async function loadAgents(){
+    const qSnap = await getDocs(collection(db,'agents'));
+    const agents = qSnap.docs.map(d => ({id:d.id, ...d.data()}));
+    const rankNames = await loadRankNames();
+    renderAgents(agents, rankNames);
+  }
+
+  function renderAgents(list, rankNames={}){
+    const q = ($("#search").value||'').toLowerCase();
+    const rf = ($("#rankFilter").value||'').toLowerCase();
+    const lf = ($("#levelFilter").value||'');
+
+    // Build ranks list for filter
+    const ranks = [...new Set(list.map(a=>a.ranga).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pl'));
+    $("#rankFilter").innerHTML = `<option value="">— filtruj po randze —</option>` + ranks.map(r=>`<option>${r}</option>`).join('');
+
+    // Filter
+    const filtered = list.filter(a=>{
+      const hit = (`${a.uid||''} ${a.imie||''} ${a.nazwisko||''} ${a.ranga||''}`).toLowerCase().includes(q);
+      const byRank = !rf || (a.ranga||'').toLowerCase()===rf;
+      const byLevel = !lf || String(a.rankLevel||'')===lf;
+      return hit && byRank && byLevel;
+    });
+
+    // Sort: Zarząd first, then by rankLevel desc (5->1), then by ranga name
+    filtered.sort((A,B)=>{
+      if(!!B.isBoard - !!A.isBoard) return (!!B.isBoard?1:0) - (!!A.isBoard?1:0); // ensure board on top
+      const ra = (A.rankLevel||0), rb = (B.rankLevel||0);
+      if(rb!==ra) return rb - ra;
+      return (A.ranga||'').localeCompare(B.ranga||'','pl');
+    });
+
+    const tbody = $("#tbody"); tbody.innerHTML='';
+    filtered.forEach(a=>{
+      const done = (a.basicTD||[]).filter(x=>!!x.passed).length;
+      const total = (a.basicTD||[]).length;
+      const rankLabel = a.ranga || (rankNames[String(a.rankLevel)]||'');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${a.isBoard? '<span class="board-badge">ZARZĄD</span>':''}</td>
+        <td class="text-decoration-underline" style="cursor:pointer" data-act="profile">${a.uid||''}</td>
+        <td>${a.imie||''}</td>
+        <td>${a.nazwisko||''}</td>
+        <td>${rankLabel||''}</td>
+        <td class="rank-level">${a.rankLevel||''}</td>
+        <td>${done}/${total}</td>
+        <td>
+          <button class="btn btn-sm btn-info me-1 ${isAdmin()? '' : 'd-none'}" data-act="edit">✏️</button>
+          <button class="btn btn-sm btn-danger ${isAdmin()? '' : 'd-none'}" data-act="del">🗑️</button>
+        </td>
+      `;
+      tr.querySelector('[data-act="profile"]').onclick = ()=>openProfile(a);
+      if(isAdmin()){
+        tr.querySelector('[data-act="edit"]').onclick = ()=>openAgentModal(a);
+        tr.querySelector('[data-act="del"]').onclick  = async ()=>{
+          if(confirm('Usunąć agenta?')){ await deleteDoc(doc(db,'agents',a.id)); alertBox('success','Usunięto.'); loadAgents(); }
+        };
+      }
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ====== Profil agenta & Basic TD (checkbox for passed) ======
+  async function openProfile(agent){
+    // refresh agent doc to ensure latest
+    const agentDoc = await getDoc(doc(db,'agents',agent.id));
+    const a = agentDoc.exists() ? {id:agent.id, ...agentDoc.data()} : agent;
+    const isSelf = a.authUid && auth.currentUser && a.authUid === auth.currentUser.uid;
+    const canEdit = isAdmin() || isSelf; // admin lub sam agent może edytować Basic TD
+
+    const rows = (a.basicTD||[]).map((t,idx)=>`
+      <tr>
+        <td><input class="form-control form-control-sm" data-f="name" data-i="${idx}" value="${(t.name||'').replace(/\"/g,'&quot;')}"></td>
+        <td><input type="date" class="form-control form-control-sm" data-f="date" data-i="${idx}" value="${t.date||''}"></td>
+        <td class="text-center"><input type="checkbox" class="td-checkbox" data-f="passed" data-i="${idx}" ${t.passed? 'checked':''} ${canEdit? '': 'disabled'}></td>
+        <td><button class="btn btn-sm btn-danger" data-del="${idx}">🗑️</button></td>
+      </tr>
+    `).join('');
+
+    $("#profileTitle").textContent = `${a.imie||''} ${a.nazwisko||''} — ${a.ranga||''} (UID: ${a.uid||''})`;
+    $("#profileBody").innerHTML = `
+      <div class="mb-3"><span class="pill">Dostęp: ${isAdmin()? 'Administracja' : isSelf? 'Agent (własny profil)' : 'Podgląd'}</span></div>
+      <div class="card p-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="mb-2">Basic TD</h5>
+          <button class="btn btn-primary btn-sm ${isAdmin()? '' : 'd-none'}" id="addRow">➕ Dodaj pozycję</button>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead><tr><th>Nazwa</th><th>Data</th><th class="text-center">Zdał</th><th>Akcje</th></tr></thead>
+            <tbody id="tdBody">${rows}</tbody>
+          </table>
+        </div>
+        <div class="text-end">
+          <button class="btn btn-primary ${canEdit? '' : 'd-none'}" id="saveTD">Zapisz zmiany</button>
+        </div>
+      </div>
+    `;
+
+    const modal = bootstrap.Modal.getOrCreateInstance($("#profileModal")); modal.show();
+
+    // attach events
+    function bindTDInputs(){
+      $("#tdBody").querySelectorAll('[data-del]').forEach(btn=>{
+        btn.onclick = async ()=>{
+          const i = +btn.getAttribute('data-del'); a.basicTD.splice(i,1); openProfile(a);
+        };
+      });
+      $("#tdBody").querySelectorAll('[data-f]').forEach(el=>{
+        el.oninput = ()=>{
+          const i = +el.getAttribute('data-i'); const f = el.getAttribute('data-f');
+          if(f==='passed') a.basicTD[i][f] = el.checked;
+          else a.basicTD[i][f] = el.value;
+        };
+      });
+    }
+    bindTDInputs();
+
+    if(isAdmin()){
+      $("#addRow").onclick = ()=>{ a.basicTD = a.basicTD || []; a.basicTD.push({name:'', date:'', passed:false}); openProfile(a); };
+    }
+
+    const saveBtn = $("#saveTD");
+    if(saveBtn){ saveBtn.onclick = async ()=>{
+      await updateDoc(doc(db,'agents',a.id), { basicTD: a.basicTD||[] });
+      alertBox('success','Zapisano Basic TD.'); loadAgents(); modal.hide();
+    }; }
+  }
+
+  // ====== Admin: Dodaj/Edytuj agenta ======
+  function openAgentModal(agent=null){
+    $("#agentForm").reset();
+    $("#agentId").value = agent?.id || '';
+    $("#fUid").value = agent?.uid || '';
+    $("#fImie").value = agent?.imie || '';
+    $("#fNazwisko").value = agent?.nazwisko || '';
+    $("#fRanga").value = agent?.ranga || '';
+    $("#fRankLevel").value = agent?.rankLevel || '3';
+    $("#fIsBoard").checked = !!agent?.isBoard;
+    $("#agentModalTitle").textContent = agent ? 'Edytuj agenta' : 'Dodaj agenta';
+    bootstrap.Modal.getOrCreateInstance($("#agentModal")).show();
+  }
+  $("#agentForm").onsubmit = async (e)=>{
+    e.preventDefault();
+    if(!isAdmin()) return alertBox('warning','Tylko administracja.');
+    const id   = $("#agentId").value || null;
+    const data = {
+      uid: $("#fUid").value.trim(),
+      imie: $("#fImie").value.trim(),
+      nazwisko: $("#fNazwisko").value.trim(),
+      ranga: $("#fRanga").value.trim(),
+      rankLevel: +$("#fRankLevel").value,
+      isBoard: !!$("#fIsBoard").checked,
+      basicTD: []
+    };
+    if(!data.uid || !data.imie || !data.nazwisko || !data.ranga){ alertBox('danger','Wypełnij wszystkie pola.'); return; }
+    try{
+      if(id){ await updateDoc(doc(db,'agents',id), data); alertBox('success','Zapisano zmiany.'); }
+      else { await addDoc(collection(db,'agents'), data); alertBox('success','Dodano agenta.'); }
+      bootstrap.Modal.getInstance($("#agentModal")).hide(); loadAgents();
+    }catch(e){ alertBox('danger','Błąd: '+e.message); }
+  };
+
+  // ====== Auth (logowanie/rejestracja) ======
+  $("#doLogin").onclick = async ()=>{
+    const uid = $("#loginUid").value.trim();
+    const pass= $("#loginPass").value;
+    if(!uid || !pass){ alertBox('danger','Wpisz UID/e-mail i hasło.'); return; }
+    const email = emailFromUID(uid);
+    try{
+      await signInWithEmailAndPassword(auth, email, pass);
+      bootstrap.Modal.getInstance($("#authModal"))?.hide();
+    }catch(e){ alertBox('danger','Logowanie nieudane: '+e.message); }
+  };
+
+  // Registration: if agent doc exists, map authUid; if not, create minimal agent doc and map
+  $("#doRegister").onclick = async ()=>{
+    const uid = $("#regUid").value.trim();
+    const p1  = $("#regPass").value, p2 = $("#regPass2").value;
+    if(!uid || !p1){ alertBox('danger','Wpisz UID i hasło.'); return; }
+    if(p1!==p2){ alertBox('danger','Hasła się różnią.'); return; }
+    const email = emailFromUID(uid);
+    try{
+      const cred = await createUserWithEmailAndPassword(auth, email, p1);
+      // try to find agent doc
+      const snap = await getDocs(collection(db,'agents'));
+      const agent = snap.docs.map(d=>({id:d.id,...d.data()})).find(a=>a.uid.toLowerCase()===uid.toLowerCase());
+      if(agent){
+        await updateDoc(doc(db,'agents',agent.id), { authUid: cred.user.uid });
+      } else {
+        // create minimal agent record (agent can update details later or admin will)
+        await addDoc(collection(db,'agents'), { uid, imie: '', nazwisko:'', ranga:'Nieustalona', rankLevel:1, isBoard:false, authUid: cred.user.uid, basicTD: [] });
+      }
+      alertBox('success','Konto utworzone. Jesteś zalogowany.');
+      bootstrap.Modal.getInstance($("#authModal"))?.hide();
+      loadAgents();
+    }catch(e){ alertBox('danger','Rejestracja nieudana: '+e.message); }
+  };
+
+  // Zmiana hasła dla zalogowanego (np. admin)
+  $("#pwdForm").onsubmit = async (e)=>{
+    e.preventDefault();
+    const p1=$("#newPwd").value, p2=$("#newPwd2").value;
+    if(p1!==p2){ alertBox('danger','Hasła się różnią.'); return; }
+    try{ await updatePassword(auth.currentUser, p1); alertBox('success','Hasło zmienione.'); bootstrap.Modal.getInstance($("#settingsModal")).hide(); }
+    catch(e){ alertBox('danger','Błąd zmiany hasła: '+e.message); }
+  };
+
+  // ====== Rangi: load & save UI ======
+  async function openRanksModal(){
+    const levels = await loadRankNames();
+    document.querySelectorAll('#ranksInputs [data-level]').forEach(inp=>{ inp.value = levels[inp.getAttribute('data-level')]||'' });
+  }
+  $("#ranksForm").onsubmit = async (e)=>{
+    e.preventDefault();
+    if(!isAdmin()) return alertBox('warning','Tylko administracja.');
+    const levels = {};
+    document.querySelectorAll('#ranksInputs [data-level]').forEach(inp=>{ levels[inp.getAttribute('data-level')] = inp.value.trim(); });
+    await saveRankNames(levels);
+    alertBox('success','Zapisano nazwy rang.');
+    bootstrap.Modal.getInstance($("#ranksModal")).hide();
+    loadAgents();
+  };
+  $("#btnRanks").onclick = openRanksModal;
+
+  // ====== Eksport (admin) ======
+  const download = (name, text, type='text/plain')=>{
+    const blob = new Blob([text], {type}); const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  };
+  $("#btnExportJSON").onclick = async ()=>{
+    const qSnap = await getDocs(collection(db,'agents'));
+    const data = qSnap.docs.map(d=>({id:d.id,...d.data()}));
+    download('agents.json', JSON.stringify(data,null,2),'application/json');
+  };
+  $("#btnExportCSV").onclick = async ()=>{
+    const qSnap = await getDocs(collection(db,'agents'));
+    const rows = [['UID','Imię','Nazwisko','Ranga','Poziom','Zarząd','BasicTD (name|date|passed;...)']];
+    qSnap.docs.forEach(d=>{
+      const a=d.data(); const td=(a.basicTD||[]).map(t=>`${t.name||''}|${t.date||''}|${!!t.passed}`).join(';');
+      rows.push([a.uid,a.imie,a.nazwisko,a.ranga,a.rankLevel,!!a.isBoard,td]);
+    });
+    const csv = rows.map(r=>r.map(v=>{ v=String(v??''); return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}`:v }).join(',')).join('\n');
+    download('agents.csv', csv,'text/csv');
+  };
+
+  // ====== State: UI wg roli ======
+  function applyRoleUI(){
+    const u = auth.currentUser;
+    $("#whoami").classList.toggle('d-none', !u);
+    $("#btnLogout").classList.toggle('d-none', !u);
+    $("#btnLogin").classList.toggle('d-none', !!u);
+    $("#btnSettings").classList.toggle('d-none', !u);
+    $("#btnAdmin").classList.toggle('d-none', !(u && isAdmin()));
+    $("#btnExportJSON").classList.toggle('d-none', !(u && isAdmin()));
+    $("#btnExportCSV").classList.toggle('d-none', !(u && isAdmin()));
+    $("#btnRanks").classList.toggle('d-none', !(u && isAdmin()));
+    $("#whoami").textContent = u ? (isAdmin()? 'Administracja' : (u.email||'Użytkownik')) : '';
+  }
+
+  onAuthStateChanged(auth, async (user)=>{
+    applyRoleUI();
+    await loadAgents();
+  });
+
+  // ====== Inicjalizacja ======
+  $("#search").oninput = ()=>loadAgents();
+  $("#rankFilter").onchange = ()=>loadAgents();
+  $("#levelFilter").onchange = ()=>loadAgents();
+  $("#btnLogout").onclick = ()=>auth.signOut();
+
+  // Hint on first run
+  alertBox('info','Uwaga: utwórz konto admin@td.agency w Firebase Auth (możesz to zrobić ręcznie w konsoli Firebase) - wtedy zobaczysz opcje administracyjne.');
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
