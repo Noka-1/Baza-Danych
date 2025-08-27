@@ -74,9 +74,9 @@
       <div class="col-md-2">
         <select id="levelFilter" class="form-select">
           <option value="">— poziom rangi —</option>
-          <option value="01">01</option>
-          <option value="02">02</option>
-          <option value="03">03</option>
+          <option value="8">01</option>
+          <option value="7">02</option>
+          <option value="6">03</option>
           <option value="5">5</option>
           <option value="4">4</option>
           <option value="3">3</option>
@@ -257,18 +257,115 @@ const firebaseConfig = {
     await setDoc(doc(db,'settings','ranks'), { levels }, { merge:true });
   }
 
-  // ====== Load agents & render ======
-  async function loadAgents(){
-    const qSnap = await getDocs(collection(db,'agents'));
-    const agents = qSnap.docs.map(d => ({id:d.id, ...d.data()}));
-    const rankNames = await loadRankNames();
-    renderAgents(agents, rankNames);
-  }
+  // ====== PROFIL AGENTA Z SZKOLENIAMI I BASIC TD ======
+async function openProfile(agent) {
+  const agentDoc = await getDoc(doc(db,'agents',agent.id));
+  const a = agentDoc.exists() ? {id:agent.id,...agentDoc.data()} : agent;
+  const canEdit = isAdmin(); // admin może edytować Basic TD i szkolenia
 
-  function renderAgents(list, rankNames={}){
-    const q = ($("#search").value||'').toLowerCase();
-    const rf = ($("#rankFilter").value||'').toLowerCase();
-    const lf = ($("#levelFilter").value||'');
+  // Nagłówek modal
+  document.getElementById("profileTitle").textContent = `${a.imie||''} ${a.nazwisko||''} — Ranga ${a.ranga||''}`;
+
+  // Pobierz globalne szkolenia
+  const trainingsSnap = await getDocs(collection(db,'trainings'));
+  const trainings = trainingsSnap.docs.map(t=>({id:t.id,...t.data()}));
+
+  // Treść modala
+  let bodyHTML = `
+    <div class="mb-3">
+      <span class="badge bg-primary">${isAdmin()?'Administracja':'Podgląd'}</span>
+    </div>
+
+    <div class="card bg-secondary text-light p-3 mb-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5>Basic TD</h5>
+        <button class="btn btn-sm btn-outline-light ${canEdit?'':'d-none'}" id="addTDRow">➕ Dodaj</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle">
+          <thead><tr><th>Nazwa</th><th>Data</th><th class="text-center">Zdał</th><th>Akcje</th></tr></thead>
+          <tbody id="tdBody">
+            ${(a.basicTD||[]).map((t,idx)=>`
+              <tr>
+                <td><input class="form-control form-control-sm" data-f="name" data-i="${idx}" value="${t.name||''}"></td>
+                <td><input type="date" class="form-control form-control-sm" data-f="date" data-i="${idx}" value="${t.date||''}"></td>
+                <td class="text-center"><input type="checkbox" class="td-checkbox" data-f="passed" data-i="${idx}" ${t.passed?'checked':''} ${canEdit?'':'disabled'}></td>
+                <td><button class="btn btn-sm btn-danger" data-del="${idx}">🗑️</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="text-end">
+        <button class="btn btn-primary ${canEdit?'':'d-none'}" id="saveTD">Zapisz zmiany</button>
+      </div>
+    </div>
+
+    <div class="card bg-secondary text-light p-3">
+      <h5>Szkolenia</h5>
+      <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle">
+          <thead><tr><th>Nazwa szkolenia</th><th class="text-center">Zdał</th></tr></thead>
+          <tbody>
+            ${trainings.map((t)=>{
+              const passed = a.trainings && a.trainings[t.id] ? true:false;
+              return `<tr>
+                <td>${t.name||''}</td>
+                <td class="text-center">
+                  <input type="checkbox" class="td-checkbox" data-tid="${t.id}" ${passed?'checked':''} ${canEdit?'':'disabled'}>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  document.getElementById("profileBody").innerHTML = bodyHTML;
+
+  // Pokaż modal
+  const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("profileModal"));
+  modal.show();
+
+  // Obsługa Basic TD
+  function bindTDInputs(){
+    document.querySelectorAll('#tdBody [data-del]').forEach(btn=>{
+      btn.onclick = ()=>{
+        const i=+btn.dataset.del; a.basicTD.splice(i,1); openProfile(a);
+      };
+    });
+    document.querySelectorAll('#tdBody [data-f]').forEach(el=>{
+      el.oninput = ()=>{
+        const i=+el.dataset.i, f=el.dataset.f;
+        f==='passed' ? a.basicTD[i][f]=el.checked : a.basicTD[i][f]=el.value;
+      };
+    });
+  }
+  bindTDInputs();
+
+  if(canEdit){
+    document.getElementById("addTDRow").onclick = ()=>{
+      a.basicTD = a.basicTD||[];
+      a.basicTD.push({name:'',date:'',passed:false});
+      openProfile(a);
+    };
+    document.getElementById("saveTD").onclick = async ()=>{
+      await updateDoc(doc(db,'agents',a.id), { basicTD:a.basicTD||[] });
+      alert("Zapisano Basic TD.");
+      modal.hide();
+    };
+
+    // Szkolenia
+    document.querySelectorAll('#profileBody [data-tid]').forEach(cb=>{
+      cb.onchange = async ()=>{
+        a.trainings = a.trainings||{};
+        a.trainings[cb.dataset.tid] = cb.checked;
+        await updateDoc(doc(db,'agents',a.id), { trainings:a.trainings });
+        alert("Zapisano szkolenia.");
+      };
+    });
+  }
+}
 
     // Build ranks list for filter
     const ranks = [...new Set(list.map(a=>a.ranga).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pl'));
@@ -534,5 +631,19 @@ const firebaseConfig = {
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Modal PROFIL AGENTA -->
+<div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content bg-dark text-light">
+      <div class="modal-header">
+        <h5 class="modal-title" id="profileTitle">Profil agenta</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="profileBody">
+        <!-- tutaj wstawiany jest profil agenta przez JS -->
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
