@@ -7,51 +7,30 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
   :root{
-    --bg:#060812; --panel:#0f1820; --panel-2:#0b1320; --accent:#00bfb8; --accent-2:#3fe1d6; --text:#dff7fb; --muted:#93a7b6;
+    --bg:#0b1220; --panel:#132033; --accent:#00d1c7; --accent-2:#5eead4; --text:#e6f1ff; --muted:#9fb3c8;
   }
-  /* Global dark theme */
-  html,body{height:100%;}
-  body{background:var(--bg); color:var(--text); font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
-  .navbar{background:linear-gradient(90deg,#07111a,#0b2130)}
+  body{background:var(--bg); color:var(--text);}
+  .navbar{background:linear-gradient(90deg,#0d1b2a,#0f2c3f)}
   .brand{color:var(--accent-2)}
-  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2)); border:none; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.6)}
+  .card{background:var(--panel); border:none; border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,.35)}
   .table{color:var(--text)}
-  .table thead{background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#002b29}
-  .btn-primary{background:var(--accent); border:0}
-  .btn-primary:hover{filter:brightness(.95)}
-  .btn-outline-light{border-color:#223645; color:var(--text)}
-  .badge-role{background:var(--accent); color:#002b29}
+  .table thead{background:var(--accent); color:#002b29}
+  .btn-primary{background:var(--accent); border:0} .btn-primary:hover{filter:brightness(0.9)}
+  .btn-outline-light{border-color:#2b3c54; color:var(--text)}
+  .badge-role{background:var(--accent); color:#033}
   a{color:var(--accent-2)}
   .form-text{color:var(--muted)!important}
-  .pill{display:inline-block; padding:.25rem .6rem; border-radius:999px; background:#071826; color:#bfefff; font-size:.8rem}
-
-  /* Inputs: dark background, light text */
-  .form-control, .form-select { background:#071826; color:var(--text); border:1px solid rgba(255,255,255,0.04); }
-  .form-control::placeholder{ color: rgba(223,247,251,0.45); }
-  .modal-content{ background: linear-gradient(180deg,#0c1620,#071022); color:var(--text); border:none }
-  .modal-header .btn-close{ filter:invert(.9); }
-
-  /* Where there is a white/light background — ensure text is black */
-  .light-bg{ background:#fff !important; color:#000 !important; }
-  .light-bg .form-control, .light-bg .form-select { background:#fff !important; color:#000 !important; }
-
-  /* Small utilities */
-  .board-badge{ background:#ffd166; color:#001; padding:.15rem .45rem; border-radius:8px; font-weight:600; }
-  .rank-level{ font-weight:700; font-size:.9rem; }
-  .muted-small{ color:var(--muted); font-size:.85rem }
-  .td-checkbox{ width:18px; height:18px }
+  .pill{display:inline-block; padding:.25rem .6rem; border-radius:999px; background:#0d2a3f; color:#bfefff; font-size:.8rem}
 </style>
 </head>
 <body>
 <nav class="navbar px-3">
   <div class="d-flex align-items-center gap-2">
-    <span class="brand fw-bold">📂 CID•Panel</span>
-    <small class="muted-small">— Criminal Investigations Division —</small>
+    <span class="brand fw-bold">📂 TD Panel</span>
   </div>
   <div class="d-flex align-items-center gap-2">
     <span id="whoami" class="pill d-none"></span>
-    <button id="btnRanks" class="btn btn-outline-light btn-sm d-none" data-bs-toggle="modal" data-bs-target="#ranksModal">Rangi</button>
-    <button id="btnSettings" class="btn btn-outline-light btn-sm d-none" data-bs-toggle="modal" data-bs-target="#settingsModal">Zmiana hasła</button>
+    <button id="btnSettings" class="btn btn-outline-light btn-sm d-none" data-bs-toggle="modal" data-bs-target="#settingsModal">Ustawienia</button>
     <button id="btnAdmin" class="btn btn-outline-light btn-sm d-none" data-bs-toggle="modal" data-bs-target="#agentModal">➕ Dodaj agenta</button>
     <button id="btnLogin" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#authModal">Zaloguj</button>
     <button id="btnLogout" class="btn btn-danger btn-sm d-none">Wyloguj</button>
@@ -63,25 +42,12 @@
 
   <div class="card p-3 mb-3">
     <div class="row g-2">
-      <div class="col-md-3">
+      <div class="col-md-4">
         <input id="search" class="form-control" placeholder="Szukaj (UID/Imię/Nazwisko/Ranga)">
       </div>
-      <div class="col-md-3">
+      <div class="col-md-4">
         <select id="rankFilter" class="form-select">
           <option value="">— filtruj po randze —</option>
-        </select>
-      </div>
-      <div class="col-md-2">
-        <select id="levelFilter" class="form-select">
-          <option value="">— poziom rangi —</option>
-          <option value="01">01</option>
-          <option value="02">02</option>
-          <option value="03">03</option>
-          <option value="5">5</option>
-          <option value="4">4</option>
-          <option value="3">3</option>
-          <option value="2">2</option>
-          <option value="1">1</option>
         </select>
       </div>
       <div class="col-md-4 d-flex gap-2 justify-content-md-end">
@@ -95,7 +61,7 @@
     <div class="table-responsive">
       <table class="table table-hover align-middle">
         <thead><tr>
-          <th>Zarząd</th><th>UID</th><th>Imię</th><th>Nazwisko</th><th>Ranga</th><th>Poziom</th><th>Basic TD</th><th>Akcje</th>
+          <th>UID</th><th>Imię</th><th>Nazwisko</th><th>Ranga</th><th>Basic TD (zdane/łącznie)</th><th>Akcje</th>
         </tr></thead>
         <tbody id="tbody"></tbody>
       </table>
@@ -116,14 +82,15 @@
         </ul>
         <div class="tab-content">
           <div class="tab-pane fade show active" id="tabLogin">
-            <div class="mb-2"><label class="form-label">UID</label><input id="loginUid" class="form-control" placeholder="np. 75202"></div>
+            <div class="mb-2"><label class="form-label">UID</label><input id="loginUid" class="form-control" placeholder="np. TD-001"></div>
             <div class="mb-2"><label class="form-label">Hasło</label><input id="loginPass" type="password" class="form-control"></div>
+            <div class="form-text">Admin loguje się mailem <code>admin@td.agency</code> (UID pole zostaw puste i wpisz e-mail w polu UID).</div>
           </div>
           <div class="tab-pane fade" id="tabRegister">
-            <div class="mb-2"><label class="form-label">UID</label><input id="regUid" class="form-control"></div>
+            <div class="mb-2"><label class="form-label">UID (musi istnieć w bazie)</label><input id="regUid" class="form-control"></div>
             <div class="mb-2"><label class="form-label">Hasło</label><input id="regPass" type="password" class="form-control"></div>
             <div class="mb-2"><label class="form-label">Powtórz hasło</label><input id="regPass2" type="password" class="form-control"></div>
-            <div class="form-text">Podczas rejestracji tworzymy konto o adresie <code>UID@cid.division </code> (jeśli nie ma dokumentu agenta, utworzymy go automatycznie).</div>
+            <div class="form-text">Podczas rejestracji tworzymy konto o adresie <code>UID@td.agency</code>.</div>
           </div>
         </div>
       </div>
@@ -135,37 +102,16 @@
   </div>
 </div>
 
-<!-- Modal: Zmiana hasła (zmiana hasła) -->
+<!-- Modal: Ustawienia (zmiana hasła) -->
 <div class="modal fade" id="settingsModal" tabindex="-1">
   <div class="modal-dialog"><form class="modal-content" id="pwdForm">
     <div class="modal-header"><h5 class="modal-title">Zmiana hasła</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
       <div class="mb-2"><label class="form-label">Nowe hasło</label><input type="password" id="newPwd" class="form-control" required></div>
       <div class="mb-2"><label class="form-label">Powtórz nowe hasło</label><input type="password" id="newPwd2" class="form-control" required></div>
-      <div class="form-text">Dotyczy aktualnie zalogowanego konta . Hasło nie jest nigdzie ujawniane w kodzie.</div>
+      <div class="form-text">Dotyczy aktualnie zalogowanego konta (np. admina). Hasło nie jest nigdzie ujawniane w kodzie.</div>
     </div>
     <div class="modal-footer"><button class="btn btn-primary" type="submit">Zmień</button></div>
-  </form></div>
-</div>
-
-<!-- Modal: Rangi (edytowalne nazwy poziomów) -->
-<div class="modal fade" id="ranksModal" tabindex="-1">
-  <div class="modal-dialog"><form class="modal-content" id="ranksForm">
-    <div class="modal-header"><h5 class="modal-title">Nazwy rang (5 poziomów)</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body">
-      <p class="form-text mb-2">Wpisz nazwy, które chcesz przypisać do poziomów 1 → 01 (1 = najniżej, 01 = najwyżej).</p>
-      <div id="ranksInputs" class="mb-2">
-        <div class="mb-2"><label class="form-label">Poziom 01</label><input data-level="01" class="form-control"></div>
-        <div class="mb-2"><label class="form-label">Poziom 02</label><input data-level="02" class="form-control"></div>
-        <div class="mb-2"><label class="form-label">Poziom 03</label><input data-level="03" class="form-control"></div>
-        <div class="mb-2"><label class="form-label">Poziom 5</label><input data-level="5" class="form-control"></div>
-        <div class="mb-2"><label class="form-label">Poziom 4</label><input data-level="4" class="form-control"></div>
-        <div class="mb-2"><label class="form-label">Poziom 3</label><input data-level="3" class="form-control"></div>
-        <div class="mb-2"><label class="form-label">Poziom 2</label><input data-level="2" class="form-control"></div>
-        <div class="mb-2"><label class="form-label">Poziom 1</label><input data-level="1" class="form-control"></div>
-      </div>
-    </div>
-    <div class="modal-footer"><button class="btn btn-primary" type="submit">Zapisz nazwy</button></div>
   </form></div>
 </div>
 
@@ -178,23 +124,7 @@
       <div class="mb-2"><label class="form-label">UID</label><input id="fUid" class="form-control" required></div>
       <div class="mb-2"><label class="form-label">Imię</label><input id="fImie" class="form-control" required></div>
       <div class="mb-2"><label class="form-label">Nazwisko</label><input id="fNazwisko" class="form-control" required></div>
-      <div class="mb-2"><label class="form-label">Ranga (nazwa)</label><input id="fRanga" class="form-control" required></div>
-      <div class="mb-2"><label class="form-label">Poziom rangi</label>
-        <select id="fRankLevel" class="form-select">
-          <option value="01">01</option>
-          <option value="02">02</option>
-          <option value="03">03</option>
-          <option value="5">5</option>
-          <option value="4">4</option>
-          <option value="3">3</option>
-          <option value="2">2</option>
-          <option value="1">1</option>
-        </select>
-      </div>
-      <div class="mb-2 form-check form-switch">
-        <input class="form-check-input" type="checkbox" id="fIsBoard">
-        <label class="form-check-label" for="fIsBoard">Zarząd (pokaż na górze)</label>
-      </div>
+      <div class="mb-2"><label class="form-label">Ranga</label><input id="fRanga" class="form-control" required></div>
     </div>
     <div class="modal-footer"><button class="btn btn-primary" type="submit">Zapisz</button></div>
   </form></div>
@@ -213,18 +143,19 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, collection, doc, addDoc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, collection, doc, addDoc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   // ===== TODO: Wklej TU swoją konfigurację Firebase =====
 const firebaseConfig = {
-  apiKey: "AIzaSyA2y8LrRjna_aALAb2M3EvWXxQ31O1YmxI",
-  authDomain: "cid-panel.firebaseapp.com",
-  projectId: "cid-panel",
-  storageBucket: "cid-panel.firebasestorage.app",
-  messagingSenderId: "1082261416682",
-  appId: "1:1082261416682:web:b3ed74f583119884860593",
-  measurementId: "G-0BB6Z67KKG"
+  apiKey: "AIzaSyCwaURS_vQ-vDTwNnzTPRetKjofDese9L8",
+  authDomain: "baza-danych-td.firebaseapp.com",
+  projectId: "baza-danych-td",
+  storageBucket: "baza-danych-td.firebasestorage.app",
+  messagingSenderId: "1001512748132",
+  appId: "1:1001512748132:web:d8bab00a6b02d9921a4b71",
+  measurementId: "G-TPFQSGQ8Y6"
 };
+
   // =====================================================
 
   // Init
@@ -246,65 +177,34 @@ const firebaseConfig = {
   }
   const isAdmin = () => auth.currentUser?.email === 'admin@td.agency';
 
-  // ===== Helpers for ranks (stored in doc 'settings/ranks') =====
-  async function loadRankNames(){
-    const docRef = doc(db,'settings','ranks');
-    try{
-      const snap = await getDoc(docRef);
-      const data = snap.exists() ? snap.data().levels || {} : {};
-      return data; // object with keys '1'..'5'
-    }catch(e){return {};}
-  }
-  async function saveRankNames(levels){
-    await setDoc(doc(db,'settings','ranks'), { levels }, { merge:true });
-  }
-
-  // ====== Load agents & render ======
+  // ====== Render listy agentów ======
   async function loadAgents(){
-    const qSnap = await getDocs(collection(db,'agents'));
+    const qSnap = await getDocs(query(collection(db,'agents'), orderBy('uid')));
     const agents = qSnap.docs.map(d => ({id:d.id, ...d.data()}));
-    const rankNames = await loadRankNames();
-    renderAgents(agents, rankNames);
+    renderAgents(agents);
   }
-
-  function renderAgents(list, rankNames={}){
+  function renderAgents(list){
     const q = ($("#search").value||'').toLowerCase();
     const rf = ($("#rankFilter").value||'').toLowerCase();
-    const lf = ($("#levelFilter").value||'');
 
-    // Build ranks list for filter
     const ranks = [...new Set(list.map(a=>a.ranga).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pl'));
     $("#rankFilter").innerHTML = `<option value="">— filtruj po randze —</option>` + ranks.map(r=>`<option>${r}</option>`).join('');
 
-    // Filter
     const filtered = list.filter(a=>{
-      const hit = (`${a.uid||''} ${a.imie||''} ${a.nazwisko||''} ${a.ranga||''}`).toLowerCase().includes(q);
-      const byRank = !rf || (a.ranga||'').toLowerCase()===rf;
-      const byLevel = !lf || String(a.rankLevel||'')===lf;
-      return hit && byRank && byLevel;
-    });
-
-    // Sort: Zarząd first, then by rankLevel desc (5->1), then by ranga name
-    filtered.sort((A,B)=>{
-      if(!!B.isBoard - !!A.isBoard) return (!!B.isBoard?1:0) - (!!A.isBoard?1:0); // ensure board on top
-      const ra = (A.rankLevel||0), rb = (B.rankLevel||0);
-      if(rb!==ra) return rb - ra;
-      return (A.ranga||'').localeCompare(B.ranga||'','pl');
+      const hit = (`${a.uid} ${a.imie} ${a.nazwisko} ${a.ranga}`).toLowerCase().includes(q);
+      return hit && (!rf || (a.ranga||'').toLowerCase()===rf);
     });
 
     const tbody = $("#tbody"); tbody.innerHTML='';
     filtered.forEach(a=>{
       const done = (a.basicTD||[]).filter(x=>!!x.passed).length;
       const total = (a.basicTD||[]).length;
-      const rankLabel = a.ranga || (rankNames[String(a.rankLevel)]||'');
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${a.isBoard? '<span class="board-badge">ZARZĄD</span>':''}</td>
-        <td class="text-decoration-underline" style="cursor:pointer" data-act="profile">${a.uid||''}</td>
+        <td class="text-decoration-underline" style="cursor:pointer" data-act="profile">${a.uid}</td>
         <td>${a.imie||''}</td>
         <td>${a.nazwisko||''}</td>
-        <td>${rankLabel||''}</td>
-        <td class="rank-level">${a.rankLevel||''}</td>
+        <td>${a.ranga||''}</td>
         <td>${done}/${total}</td>
         <td>
           <button class="btn btn-sm btn-info me-1 ${isAdmin()? '' : 'd-none'}" data-act="edit">✏️</button>
@@ -322,24 +222,28 @@ const firebaseConfig = {
     });
   }
 
-  // ====== Profil agenta & Basic TD (checkbox for passed) ======
+  // ====== Profil agenta & Basic TD ======
   async function openProfile(agent){
-    // refresh agent doc to ensure latest
-    const agentDoc = await getDoc(doc(db,'agents',agent.id));
-    const a = agentDoc.exists() ? {id:agent.id, ...agentDoc.data()} : agent;
-    const isSelf = a.authUid && auth.currentUser && a.authUid === auth.currentUser.uid;
+    const isSelf = agent.authUid && auth.currentUser && agent.authUid === auth.currentUser.uid;
     const canEdit = isAdmin() || isSelf; // admin lub sam agent może edytować Basic TD
 
-    const rows = (a.basicTD||[]).map((t,idx)=>`
+    const rows = (agent.basicTD||[]).map((t,idx)=>`
       <tr>
-        <td><input class="form-control form-control-sm" data-f="name" data-i="${idx}" value="${(t.name||'').replace(/\"/g,'&quot;')}"></td>
-        <td><input type="date" class="form-control form-control-sm" data-f="date" data-i="${idx}" value="${t.date||''}"></td>
-        <td class="text-center"><input type="checkbox" class="td-checkbox" data-f="passed" data-i="${idx}" ${t.passed? 'checked':''} ${canEdit? '': 'disabled'}></td>
-        <td><button class="btn btn-sm btn-danger" data-del="${idx}">🗑️</button></td>
+        <td><input class="form-control form-control-sm" data-f="name" data-i="${idx}" value="${t.name||''}" ${isAdmin()? '' : 'disabled'}></td>
+        <td><input type="date" class="form-control form-control-sm" data-f="date" data-i="${idx}" value="${t.date||''}" ${isAdmin()? '' : 'disabled'}></td>
+        <td>
+          <select class="form-select form-select-sm" data-f="passed" data-i="${idx}" ${canEdit? '' : 'disabled'}>
+            <option value="true" ${t.passed?'selected':''}>Zdał</option>
+            <option value="false" ${!t.passed?'selected':''}>Nie zdał</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn btn-sm btn-danger ${isAdmin()? '' : 'd-none'}" data-del="${idx}">🗑️</button>
+        </td>
       </tr>
     `).join('');
 
-    $("#profileTitle").textContent = `${a.imie||''} ${a.nazwisko||''} — ${a.ranga||''} (UID: ${a.uid||''})`;
+    $("#profileTitle").textContent = `${agent.imie} ${agent.nazwisko} — ${agent.ranga} (UID: ${agent.uid})`;
     $("#profileBody").innerHTML = `
       <div class="mb-3"><span class="pill">Dostęp: ${isAdmin()? 'Administracja' : isSelf? 'Agent (własny profil)' : 'Podgląd'}</span></div>
       <div class="card p-3">
@@ -349,7 +253,7 @@ const firebaseConfig = {
         </div>
         <div class="table-responsive">
           <table class="table table-hover align-middle">
-            <thead><tr><th>Nazwa</th><th>Data</th><th class="text-center">Zdał</th><th>Akcje</th></tr></thead>
+            <thead><tr><th>Nazwa</th><th>Data</th><th>Status</th><th>Akcje</th></tr></thead>
             <tbody id="tdBody">${rows}</tbody>
           </table>
         </div>
@@ -361,31 +265,36 @@ const firebaseConfig = {
 
     const modal = bootstrap.Modal.getOrCreateInstance($("#profileModal")); modal.show();
 
-    // attach events
-    function bindTDInputs(){
+    if(isAdmin()){
+      $("#addRow").onclick = ()=>{
+        agent.basicTD = agent.basicTD || [];
+        agent.basicTD.push({name:'', date:'', passed:false});
+        openProfile(agent);
+      };
       $("#tdBody").querySelectorAll('[data-del]').forEach(btn=>{
-        btn.onclick = async ()=>{
-          const i = +btn.getAttribute('data-del'); a.basicTD.splice(i,1); openProfile(a);
+        btn.onclick = ()=>{
+          const i = +btn.getAttribute('data-del');
+          agent.basicTD.splice(i,1); openProfile(agent);
         };
       });
       $("#tdBody").querySelectorAll('[data-f]').forEach(el=>{
         el.oninput = ()=>{
           const i = +el.getAttribute('data-i'); const f = el.getAttribute('data-f');
-          if(f==='passed') a.basicTD[i][f] = el.checked;
-          else a.basicTD[i][f] = el.value;
+          agent.basicTD[i][f] = (f==='passed') ? (el.value==='true') : el.value;
         };
       });
-    }
-    bindTDInputs();
-
-    if(isAdmin()){
-      $("#addRow").onclick = ()=>{ a.basicTD = a.basicTD || []; a.basicTD.push({name:'', date:'', passed:false}); openProfile(a); };
+    } else if(canEdit){
+      $("#tdBody").querySelectorAll('[data-f="passed"]').forEach(el=>{
+        el.onchange = ()=>{
+          const i = +el.getAttribute('data-i'); agent.basicTD[i].passed = (el.value==='true');
+        };
+      });
     }
 
     const saveBtn = $("#saveTD");
     if(saveBtn){ saveBtn.onclick = async ()=>{
-      await updateDoc(doc(db,'agents',a.id), { basicTD: a.basicTD||[] });
-      alertBox('success','Zapisano Basic TD.'); loadAgents(); modal.hide();
+      await updateDoc(doc(db,'agents',agent.id), { basicTD: agent.basicTD||[] });
+      alertBox('success','Zapisano Basic TD.'); loadAgents();
     }; }
   }
 
@@ -397,8 +306,6 @@ const firebaseConfig = {
     $("#fImie").value = agent?.imie || '';
     $("#fNazwisko").value = agent?.nazwisko || '';
     $("#fRanga").value = agent?.ranga || '';
-    $("#fRankLevel").value = agent?.rankLevel || '3';
-    $("#fIsBoard").checked = !!agent?.isBoard;
     $("#agentModalTitle").textContent = agent ? 'Edytuj agenta' : 'Dodaj agenta';
     bootstrap.Modal.getOrCreateInstance($("#agentModal")).show();
   }
@@ -411,16 +318,12 @@ const firebaseConfig = {
       imie: $("#fImie").value.trim(),
       nazwisko: $("#fNazwisko").value.trim(),
       ranga: $("#fRanga").value.trim(),
-      rankLevel: +$("#fRankLevel").value,
-      isBoard: !!$("#fIsBoard").checked,
       basicTD: []
     };
     if(!data.uid || !data.imie || !data.nazwisko || !data.ranga){ alertBox('danger','Wypełnij wszystkie pola.'); return; }
-    try{
-      if(id){ await updateDoc(doc(db,'agents',id), data); alertBox('success','Zapisano zmiany.'); }
-      else { await addDoc(collection(db,'agents'), data); alertBox('success','Dodano agenta.'); }
-      bootstrap.Modal.getInstance($("#agentModal")).hide(); loadAgents();
-    }catch(e){ alertBox('danger','Błąd: '+e.message); }
+    if(id){ await updateDoc(doc(db,'agents',id), data); alertBox('success','Zapisano zmiany.'); }
+    else { await addDoc(collection(db,'agents'), data); alertBox('success','Dodano agenta.'); }
+    bootstrap.Modal.getInstance($("#agentModal")).hide(); loadAgents();
   };
 
   // ====== Auth (logowanie/rejestracja) ======
@@ -434,28 +337,21 @@ const firebaseConfig = {
       bootstrap.Modal.getInstance($("#authModal"))?.hide();
     }catch(e){ alertBox('danger','Logowanie nieudane: '+e.message); }
   };
-
-  // Registration: if agent doc exists, map authUid; if not, create minimal agent doc and map
   $("#doRegister").onclick = async ()=>{
     const uid = $("#regUid").value.trim();
     const p1  = $("#regPass").value, p2 = $("#regPass2").value;
     if(!uid || !p1){ alertBox('danger','Wpisz UID i hasło.'); return; }
     if(p1!==p2){ alertBox('danger','Hasła się różnią.'); return; }
-    const email = emailFromUID(uid);
+    // sprawdź, czy istnieje agent o danym UID
+    const snap = await getDocs(collection(db,'agents'));
+    const agent = snap.docs.map(d=>({id:d.id,...d.data()})).find(a=>a.uid.toLowerCase()===uid.toLowerCase());
+    if(!agent){ alertBox('warning','Brak takiego UID w bazie. Najpierw dodaj go w panelu administracji.'); return; }
     try{
-      const cred = await createUserWithEmailAndPassword(auth, email, p1);
-      // try to find agent doc
-      const snap = await getDocs(collection(db,'agents'));
-      const agent = snap.docs.map(d=>({id:d.id,...d.data()})).find(a=>a.uid.toLowerCase()===uid.toLowerCase());
-      if(agent){
-        await updateDoc(doc(db,'agents',agent.id), { authUid: cred.user.uid });
-      } else {
-        // create minimal agent record (agent can update details later or admin will)
-        await addDoc(collection(db,'agents'), { uid, imie: '', nazwisko:'', ranga:'Nieustalona', rankLevel:1, isBoard:false, authUid: cred.user.uid, basicTD: [] });
-      }
+      const cred = await createUserWithEmailAndPassword(auth, emailFromUID(uid), p1);
+      // zapisz mapowanie authUid ↔ dokument agenta
+      await updateDoc(doc(db,'agents',agent.id), { authUid: cred.user.uid });
       alertBox('success','Konto utworzone. Jesteś zalogowany.');
       bootstrap.Modal.getInstance($("#authModal"))?.hide();
-      loadAgents();
     }catch(e){ alertBox('danger','Rejestracja nieudana: '+e.message); }
   };
 
@@ -467,23 +363,6 @@ const firebaseConfig = {
     try{ await updatePassword(auth.currentUser, p1); alertBox('success','Hasło zmienione.'); bootstrap.Modal.getInstance($("#settingsModal")).hide(); }
     catch(e){ alertBox('danger','Błąd zmiany hasła: '+e.message); }
   };
-
-  // ====== Rangi: load & save UI ======
-  async function openRanksModal(){
-    const levels = await loadRankNames();
-    document.querySelectorAll('#ranksInputs [data-level]').forEach(inp=>{ inp.value = levels[inp.getAttribute('data-level')]||'' });
-  }
-  $("#ranksForm").onsubmit = async (e)=>{
-    e.preventDefault();
-    if(!isAdmin()) return alertBox('warning','Tylko administracja.');
-    const levels = {};
-    document.querySelectorAll('#ranksInputs [data-level]').forEach(inp=>{ levels[inp.getAttribute('data-level')] = inp.value.trim(); });
-    await saveRankNames(levels);
-    alertBox('success','Zapisano nazwy rang.');
-    bootstrap.Modal.getInstance($("#ranksModal")).hide();
-    loadAgents();
-  };
-  $("#btnRanks").onclick = openRanksModal;
 
   // ====== Eksport (admin) ======
   const download = (name, text, type='text/plain')=>{
@@ -497,12 +376,14 @@ const firebaseConfig = {
   };
   $("#btnExportCSV").onclick = async ()=>{
     const qSnap = await getDocs(collection(db,'agents'));
-    const rows = [['UID','Imię','Nazwisko','Ranga','Poziom','Zarząd','BasicTD (name|date|passed;...)']];
+    const rows = [['UID','Imię','Nazwisko','Ranga','BasicTD (name|date|passed;...)']];
     qSnap.docs.forEach(d=>{
       const a=d.data(); const td=(a.basicTD||[]).map(t=>`${t.name||''}|${t.date||''}|${!!t.passed}`).join(';');
-      rows.push([a.uid,a.imie,a.nazwisko,a.ranga,a.rankLevel,!!a.isBoard,td]);
+      rows.push([a.uid,a.imie,a.nazwisko,a.ranga,td]);
     });
-    const csv = rows.map(r=>r.map(v=>{ v=String(v??''); return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}`:v }).join(',')).join('\n');
+    const csv = rows.map(r=>r.map(v=>{
+      v=String(v??''); return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v;
+    }).join(',')).join('\n');
     download('agents.csv', csv,'text/csv');
   };
 
@@ -516,7 +397,6 @@ const firebaseConfig = {
     $("#btnAdmin").classList.toggle('d-none', !(u && isAdmin()));
     $("#btnExportJSON").classList.toggle('d-none', !(u && isAdmin()));
     $("#btnExportCSV").classList.toggle('d-none', !(u && isAdmin()));
-    $("#btnRanks").classList.toggle('d-none', !(u && isAdmin()));
     $("#whoami").textContent = u ? (isAdmin()? 'Administracja' : (u.email||'Użytkownik')) : '';
   }
 
@@ -528,12 +408,10 @@ const firebaseConfig = {
   // ====== Inicjalizacja ======
   $("#search").oninput = ()=>loadAgents();
   $("#rankFilter").onchange = ()=>loadAgents();
-  $("#levelFilter").onchange = ()=>loadAgents();
   $("#btnLogout").onclick = ()=>auth.signOut();
 
-  // Hint on first run
-  alertBox('info','Uwaga: utwórz konto admin@td.agency w Firebase Auth (możesz to zrobić ręcznie w konsoli Firebase) - wtedy zobaczysz opcje administracyjne.');
-
+  // Wskazówka dla pierwszego uruchomienia:
+  alertBox('info','Zaloguj się jako admin: <code>admin@td.agency</code> + hasło ustawione w Firebase → dodaj agentów → agent może się zarejestrować używając swojego UID.');
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
